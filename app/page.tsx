@@ -1,11 +1,13 @@
-
+//import { Fa } from 'react-icons/fa';
+import InputSearch from '@/components/InputSearch';
 export default function Home() {
 	return (
-		<main>
+		<div className='col-span-6'>
 			<div className='relative flex items-center justify-center'>
-				Moonkey
-				<div className='items-center font-bold'>{' '}Wallet</div>
+				{/* <BiSearchAlt size={25} /> */}
+				<InputSearch />
+				{/* <h1>SearchInput</h1> */}
 			</div>
-		</main>
+		</div>
 	);
 }
