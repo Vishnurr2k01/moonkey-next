@@ -3,7 +3,10 @@ import Sidebar from '@/components/Sidebar';
 import ClientProvider from '@/components/ClientProvider';
 
 export const metadata = {
-	title: 'Moonkey app',
+	title: {
+		default: 'Moonkey app',
+		template: '%s | Moonkey app',
+	},
 	description: 'ERC4337 wallet made by moonkey team',
 };
 
@@ -14,7 +17,7 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang='en'>
-			<body>
+			<body className='bg-[#F7F7F7]'>
 				<ClientProvider>
 					<main className='grid grid-cols-8'>
 						<Sidebar />
