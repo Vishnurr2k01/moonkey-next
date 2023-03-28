@@ -1,5 +1,6 @@
 //import { Fa } from 'react-icons/fa';
 import InputSearch from '@/components/InputSearch';
+import SocialLogin from '@/components/SocialLogin';
 export default function Home() {
 	return (
 		<div className='col-span-6'>
@@ -33,6 +34,7 @@ export default function Home() {
 						style={{ border: 0 }}
 					></iframe>
 				</div>
+				<SocialLogin />
 			</div>
 		</div>
 	);
