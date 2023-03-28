@@ -8,7 +8,7 @@ import {
 	SafeAuthSignInData,
 	SafeAuthProviderType,
 	Web3AuthProviderConfig,
-} from '@safe-global/auth-kit';
+} from '@safe-global/auth-kit'; 
 
 function SocialLogin() {
 
@@ -88,15 +88,15 @@ function SocialLogin() {
 					<div>
 						<div className='flex justify-between'>
 							<p>Owner account</p>
-							<p>SignerAddress: ${safeAuthSignInResponse.eoa}</p>
-							<p>ChainId: ${safeAuthSignInResponse.chainId} </p>
+							<p>SignerAddress: {safeAuthSignInResponse.eoa}</p>
+							<p>ChainId: {safeAuthSignInResponse.chainId} </p>
 						</div>
 						<div>
-							<p>Availiable Safes</p>
+							<p>Available Safes</p>
 							{safeAuthSignInResponse?.safes?.length ? (
 								safeAuthSignInResponse?.safes?.map((safe: string, index: number) => (
 									<div key={index} className='flex justify-between'>
-										<p>Address: ${safe}</p>
+										<p>Address: {safe}</p>
 									</div>
 								))
 							) : (

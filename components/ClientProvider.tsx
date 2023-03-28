@@ -26,7 +26,6 @@ export default function RootLayout({
 
 	useEffect(() => {
 		; (async () => {
-			console.log(authProviderConfig);
 			setSafeAuth(await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, {
 				chainId: '0x5',
 				txServiceUrl: 'https://safe-transaction-goerli.safe.global',
