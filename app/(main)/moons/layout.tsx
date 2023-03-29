@@ -1,13 +1,8 @@
-import './globals.css';
 import Sidebar from '@/components/Sidebar';
 import ClientProvider from '@/components/ClientProvider';
 
 export const metadata = {
-	title: {
-		default: 'Moonkey app',
-		template: '%s | Moonkey app',
-	},
-	description: 'ERC4337 wallet made by moonkey team',
+	title: 'Safe',
 };
 
 export default function RootLayout({
@@ -17,12 +12,12 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang='en'>
-			<body className='bg-slate-600/25 h-full'>
+			<body className='bg-slate-600'>
 				<ClientProvider>
-					{/* <main className='grid grid-cols-8'> */}
-					{/* <Sidebar /> */}
-					{children}
-					{/* </main> */}
+					<main className='grid grid-cols-8'>
+						<Sidebar />
+						{children}
+					</main>
 				</ClientProvider>
 			</body>
 		</html>
