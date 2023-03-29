@@ -19,7 +19,7 @@ function Sidebar() {
 				<p className='font-Kelly text-2xl'>MoonKey</p>
 			</div>
 			{/* Safe (ERC4337) account */}
-			<div className='flex flex-col mt-2 items-center bg-gray-700'>
+			<div className='flex flex-1 flex-col mt-2 items-center bg-gray-700'>
 				<div className='flex flex-row items-center text-red-700'>
 					{/* Change text color to green when connected to signer */}
 					<MdVpnKey size={25} />
@@ -49,14 +49,14 @@ function Sidebar() {
 			<SidebarRow Icon={BiDollarCircle} title='On-ramp' />
 			{!safeAuthSignInResponse ? (
 				<button
-					className='bg-blue-500 text-white space-x-2 px-4 py-3 text-lg rounded-full'
+					className='bg-blue-500 text-white space-x-2 px-4 py-3 text-lg rounded-2xl cursor-pointer hover:bg-gray-100 hover:text-[#00ADED]'
 					onClick={logIn}
 				>
 					Connect
 				</button>
 			) : (
 				<button
-					className='bg-red-500 text-white space-x-2 px-4 py-3 text-lg rounded-full'
+					className='bg-red-500 text-white space-x-2 px-4 py-3 text-lg rounded-2xl hover:bg-gray-100 hover:text-red-700'
 					onClick={logOut}
 				>
 					Disconnect
