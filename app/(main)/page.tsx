@@ -1,4 +1,4 @@
-import { BiAddToQueue, BiImport } from 'react-icons/bi';
+import CreateAccount from './CreateAccount';
 
 export default function Home() {
 	return (
@@ -8,28 +8,7 @@ export default function Home() {
 				<p className='font-Kelly text-6xl'>MoonKey</p>
 			</div>
 			{/* MainApp content */}
-			<div className='min-h-full flex space-x-4 items-center justify-center mt-4'>
-				<div className='ml-2 w-96 p-4 rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5'>
-					<div className='flex justify-between'>
-						<BiAddToQueue size={50} className='text-green-400' />
-					</div>
-					<div>
-						<h2 className='font-bold'>Create an account</h2>
-						<p className='truncate break-normal'>
-							Two clicks away from having your web3 Smart wallet
-						</p>
-					</div>
-				</div>
-				<div className='ml-2 w-96 p-4 rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5'>
-					<div className='flex justify-between'>
-						<BiImport size={50} className='text-green-400' />
-					</div>
-					<div>
-						<h2 className='font-bold '>Import existing account</h2>
-						<p className='truncate break-normal'>Migrate your smart wallet.</p>
-					</div>
-				</div>
-			</div>
+			<CreateAccount />
 			<div className='absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-2xl sm:-top-80'>
 				<svg
 					className='relative left-[calc(50%-11rem)] -z-10 h-[21.1875rem] max-w-none -translate-x-1/2 rotate-[30deg] sm:left-[calc(50%-30rem)] sm:h-[42.375rem]'

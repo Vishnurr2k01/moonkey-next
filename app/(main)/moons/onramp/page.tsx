@@ -5,18 +5,18 @@ import {
 	SafeOnRampProviderType,
 } from '@safe-global/onramp-kit';
 import { isAddress } from '@ethersproject/address';
-import { useEffect, useRef, useState, useContext } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { ClientContext } from '@/components/ClientProvider';
 
 const isSessionValid = (sessionId: string) => sessionId.length === 28;
 
 function page() {
+	const { newAddress } = useContext(ClientContext);
 	const [walletAddress, setWalletAddress] = useState<string>('');
+	if (newAddress !== undefined) setWalletAddress(newAddress);
 	const [sessionId, setSessionId] = useState<string>('');
 	const [onRampClient, setOnRampClient] = useState<SafeOnRampKit>();
 	const stripeRootRef = useRef<HTMLDivElement>(null);
-
-	const { safeAuthSignInResponse } = useContext(ClientContext);
 
 	const handleCreateSession = async () => {
 		if (!isSessionValid(sessionId) && !isAddress(walletAddress)) return;
@@ -28,7 +28,7 @@ function page() {
 		const sessionData = (await onRampClient?.open({
 			sessionId: sessionId,
 			walletAddress,
-			networks: ['ethereum', 'polygon'],
+			networks: ['ethereum'],
 			element: '#stripe-root',
 			events: {
 				onLoaded: () => console.log('onLoaded()'),
@@ -67,6 +67,16 @@ function page() {
 		})();
 	}, []);
 
+	useEffect(() => {
+		(async () => {
+			if (!newAddress) {
+				console.log('No address provided');
+				return;
+			}
+			handleCreateSession();
+		})();
+	});
+
 	return (
 		<div className='col-span-6 bg-[#F7F7F7] h-full'>
 			<div className='relative flex items-center justify-center'>
@@ -78,17 +88,17 @@ function page() {
 						onChange={(event) => setWalletAddress(event.target.value)}
 						className='w-full'
 					/>
-					<input
-						id='session-id'
-						placeholder='Enter the session id if you have one'
-						value={sessionId}
-						onChange={(event) => setSessionId(event.target.value)}
-						className='w-full mt-2'
-					/>
+					{/* <input
+								id='session-id'
+								placeholder='Enter the session id if you have one'
+								value={sessionId}
+								onChange={(event) => setSessionId(event.target.value)}
+								className='w-full mt-2'
+							/> */}
 					<br />
 					<div className='justify-between items-center flex'>
 						<button onClick={handleCreateSession} className='mt-3'>
-							Create session
+							Create new session
 						</button>
 						<button onClick={handleCloseSession} className='mt-3'>
 							Close session
