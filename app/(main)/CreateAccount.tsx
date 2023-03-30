@@ -6,7 +6,7 @@ import { AiFillCloseSquare } from 'react-icons/ai';
 import { BiAddToQueue, BiImport } from 'react-icons/bi';
 
 function CreateAccount() {
-	const { changeAccount, changeAddress, newAccount } =
+	const { changeAccount, changeAddress, newAccount, newAddress } =
 		useContext(ClientContext);
 
 	const [showModal, setShowModal] = useState(false);
@@ -21,6 +21,8 @@ function CreateAccount() {
 	const addressChange = (event: { target: { value: string } }) => {
 		setAddress(event.target.value);
 		if (changeAddress) changeAddress(event.target.value);
+		console.log(newAddress);
+		
 	};
 	const handleCreateAccount = () => {};
 	const handleImportAccount = () => {
