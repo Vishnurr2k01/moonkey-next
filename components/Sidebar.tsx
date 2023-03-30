@@ -28,7 +28,11 @@ function Sidebar() {
 			</div>
 			{/* Safe (ERC4337) account */}
 			<div className='flex flex-1 flex-col mt-2 items-center bg-gray-700'>
-				<div className='flex flex-row items-center text-red-700'>
+				<div
+					className={`flex flex-row items-center ${
+						safeAuthSignInResponse ? 'text-green-700' : 'text-red-700'
+					} `}
+				>
 					{/* Change text color to green when connected to signer */}
 					<MdVpnKey size={25} />
 					<p className='text-gray-300'>{newAccount}</p>

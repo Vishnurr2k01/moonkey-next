@@ -30,8 +30,8 @@ function CreateAccount() {
 		console.log(newAddress);
 	};
 	const handleCreateAccount = async () => {
-		if (!safeAuthSignInResponse) logIn;
-		if (changeAddress) changeAddress(safeAuthSignInResponse.eoa);
+		if (!safeAuthSignInResponse) if (logIn) await logIn();
+		if (changeAddress) changeAddress(safeAuthSignInResponse?.eoa);
 
 		router.push('/moons');
 	};
