@@ -13,7 +13,6 @@ const isSessionValid = (sessionId: string) => sessionId.length === 28;
 function Onramp() {
 	const { newAddress } = useContext(ClientContext);
 	const [walletAddress, setWalletAddress] = useState<string>('');
-	if (newAddress !== undefined) setWalletAddress(newAddress);
 	const [sessionId, setSessionId] = useState<string>('');
 	const [onRampClient, setOnRampClient] = useState<SafeOnRampKit>();
 	const stripeRootRef = useRef<HTMLDivElement>(null);
@@ -73,9 +72,10 @@ function Onramp() {
 				console.log('No address provided');
 				return;
 			}
+			setWalletAddress(newAddress);
 			handleCreateSession();
 		})();
-	});
+	}, []);
 
 	return (
 		<div className='col-span-6 bg-[#F7F7F7] h-full'>

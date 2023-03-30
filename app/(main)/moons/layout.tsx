@@ -11,15 +11,11 @@ export default function RootLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang='en'>
-			<body className='bg-slate-600'>
-				<ClientProvider>
+		
 					<main className='grid grid-cols-8'>
 						<Sidebar />
 						{children}
 					</main>
-				</ClientProvider>
-			</body>
-		</html>
+				
 	);
 }

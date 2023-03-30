@@ -72,7 +72,7 @@ export default function RootLayout({
 			changeAccount: changeAccount,
 			changeAddress: changeAddress,
 		});
-	}, [safeAuth, safeAuthSignInResponse]);
+	}, [safeAuth, safeAuthSignInResponse, newAccount, newAddress]);
 
 	const login = async () => {
 		console.log(safeAuth);

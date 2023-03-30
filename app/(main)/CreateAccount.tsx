@@ -6,8 +6,14 @@ import { AiFillCloseSquare } from 'react-icons/ai';
 import { BiAddToQueue, BiImport } from 'react-icons/bi';
 
 function CreateAccount() {
-	const { changeAccount, changeAddress, newAccount } =
-		useContext(ClientContext);
+	const {
+		changeAccount,
+		changeAddress,
+		newAccount,
+		newAddress,
+		safeAuthSignInResponse,
+		logIn,
+	} = useContext(ClientContext);
 
 	const [showModal, setShowModal] = useState(false);
 	const [accountName, setAccountName] = useState('');
@@ -21,8 +27,14 @@ function CreateAccount() {
 	const addressChange = (event: { target: { value: string } }) => {
 		setAddress(event.target.value);
 		if (changeAddress) changeAddress(event.target.value);
+		console.log(newAddress);
 	};
-	const handleCreateAccount = () => {};
+	const handleCreateAccount = async () => {
+		if (!safeAuthSignInResponse) if (logIn) await logIn();
+		if (changeAddress) changeAddress(safeAuthSignInResponse?.eoa);
+
+		router.push('/moons');
+	};
 	const handleImportAccount = () => {
 		setShowModal(true);
 	};
