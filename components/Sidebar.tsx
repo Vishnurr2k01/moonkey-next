@@ -8,10 +8,18 @@ import { MdVpnKey } from 'react-icons/md';
 import SidebarRow from './SidebarRow';
 import { ClientContext } from './ClientProvider';
 import Divider from './Divider';
+import Link from 'next/link';
 
 function Sidebar() {
-	const { safeAuth, safeAuthSignInResponse, logIn, logOut } =
-		useContext(ClientContext);
+	const {
+		safeAuth,
+		safeAuthSignInResponse,
+		logIn,
+		logOut,
+		newAccount,
+		newAddress,
+	} = useContext(ClientContext);
+
 	return (
 		<div className='flex flex-col col-span-2 items-center px-4 md:items-start text-gray-300 bg-gray-800 border-gray-800'>
 			<div className='flex items-center bg-none'>
@@ -23,11 +31,15 @@ function Sidebar() {
 				<div className='flex flex-row items-center text-red-700'>
 					{/* Change text color to green when connected to signer */}
 					<MdVpnKey size={25} />
-					<p className='text-gray-300'>Account-1</p>
+					<p className='text-gray-300'>{newAccount}</p>
 				</div>
 				<div className='flex flex-row items-center justify-center'>
 					<p className='font-bold '>gor:</p>
-					<p className='font-light '>0x76F...DEE</p>
+					<p className='font-light '>
+						{newAddress?.substring(0, 6)}
+						{'...'}
+						{newAddress?.substring(newAddress.length - 4)}
+					</p>
 				</div>
 			</div>
 			{/* Divider line */}
@@ -35,18 +47,28 @@ function Sidebar() {
 				<div className='w-3/4 border-t border-gray-300' />
 			</div>
 			{/* Assets */}
-			<SidebarRow Icon={GiTwoCoins} title='Assets' />
+			<Link href={'/moons/assets'} className='no-underline text-gray-300'>
+				<SidebarRow Icon={GiTwoCoins} title='Assets' />
+			</Link>
 			{/* Transactions */}
-			<SidebarRow Icon={BiTransferAlt} title='Transactions' />
+			<Link href={'/moons/transactions'} className='no-underline text-gray-300'>
+				<SidebarRow Icon={BiTransferAlt} title='Transactions' />
+			</Link>
 			{/* Mods */}
-			<SidebarRow Icon={AiFillTool} title='Mods' />
+			<Link href={'/moons/mods'} className='no-underline text-gray-300'>
+				<SidebarRow Icon={AiFillTool} title='Mods' />
+			</Link>
 			{/* Moons */}
-			<SidebarRow Icon={TbPlanet} title='Moons' />
+			<Link href={'/moons'} className='no-underline text-gray-300'>
+				<SidebarRow Icon={TbPlanet} title='Moons' />
+			</Link>
 			{/* Divider line */}
 			<div className='inset-0 flex items-center place-content-center'>
 				<div className='w-3/4 border-t border-gray-300' />
 			</div>
-			<SidebarRow Icon={BiDollarCircle} title='On-ramp' />
+			<Link href={'/moons/onramp'} className='no-underline text-gray-300'>
+				<SidebarRow Icon={BiDollarCircle} title='Onramp' />
+			</Link>
 			{!safeAuthSignInResponse ? (
 				<button
 					className='bg-blue-500 text-white space-x-2 px-4 py-3 text-lg rounded-2xl cursor-pointer hover:bg-gray-100 hover:text-[#00ADED]'
