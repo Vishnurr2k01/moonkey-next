@@ -1,7 +1,7 @@
 'use client';
 import { ClientContext } from '@/components/ClientProvider';
 import { useRouter } from 'next/navigation';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AiFillCloseSquare } from 'react-icons/ai';
 import { BiAddToQueue, BiImport } from 'react-icons/bi';
 
@@ -31,19 +31,24 @@ function CreateAccount() {
 	};
 	const handleCreateAccount = async () => {
 		if (!safeAuthSignInResponse) logIn;
-		if (changeAddress) changeAddress(safeAuthSignInResponse.eoa);
-
-		router.push('/moons');
 	};
 	const handleImportAccount = () => {
 		setShowModal(true);
 	};
+	useEffect(() => {
+		if (!safeAuthSignInResponse) return;
+		if (changeAddress) changeAddress(safeAuthSignInResponse.eoa);
+		if (changeAccount) changeAccount(safeAuthSignInResponse.safe[0]);
+		console.log(safeAuthSignInResponse);
+		router.push('/moons');
+
+	}, [safeAuthSignInResponse])
 
 	return (
 		<>
 			<div className='min-h-full flex space-x-4 items-center justify-center mt-4'>
 				<div
-					onClick={handleCreateAccount}
+					onClick={logIn}
 					className='cursor-pointer hover:shadow ml-2 w-96 p-4 rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5'
 				>
 					<div className='flex justify-between'>
