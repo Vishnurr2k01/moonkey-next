@@ -30,7 +30,10 @@ function CreateAccount() {
 		console.log(newAddress);
 	};
 	const handleCreateAccount = async () => {
-		if (!safeAuthSignInResponse) logIn;
+		if (!safeAuthSignInResponse) if (logIn) await logIn();
+		if (changeAddress) changeAddress(safeAuthSignInResponse?.eoa);
+
+		router.push('/moons');
 	};
 	const handleImportAccount = () => {
 		setShowModal(true);
