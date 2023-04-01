@@ -1,5 +1,6 @@
 import { AiFillStar } from 'react-icons/ai';
 import InputSearch from '@/components/InputSearch';
+import CowSwap from '@/components/CowSwap';
 
 export default function Home() {
 	return (
@@ -12,7 +13,7 @@ export default function Home() {
 			{/* MainApp content */}
 			<div>
 				{/* Moons as a card list */}
-				<div className='ml-2 w-96 p-4 rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5'>
+				<div className='ml-2 w-1/2 p-4 rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5'>
 					<div className='flex justify-between'>
 						<div>
 							<iframe
@@ -45,6 +46,9 @@ export default function Home() {
 							and DEX aggregators & saves you more with p2p trading and
 							protection from MEV
 						</p>
+					</div>
+					<div>
+						<CowSwap />
 					</div>
 				</div>
 			</div>
