@@ -3,6 +3,7 @@
 
 const clientId: string = process.env.NEXT_PUBLIC_CLIENT_ID || '';
 const infuraKey: string = process.env.NEXT_PUBLIC_INFURA_API_KEY || '';
+const alchemyKey: string = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || '';
 
 //const web3auth = new Web3Auth({
 //	clientId,
@@ -19,7 +20,7 @@ const infuraKey: string = process.env.NEXT_PUBLIC_INFURA_API_KEY || '';
 //	},
 //});
 const authProviderConfig = {
-	rpcTarget: `https://goerli.infura.io/v3/${infuraKey}`,
+	rpcTarget: `https://polygon-mumbai.g.alchemy.com/v2/${alchemyKey}`,
 	clientId: clientId,
 	network: 'testnet',
 	theme: 'light',

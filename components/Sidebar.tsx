@@ -38,7 +38,7 @@ function Sidebar() {
 					<p className='text-gray-300'>{newAccount}</p>
 				</div>
 				<div className='flex flex-row items-center justify-center'>
-					<p className='font-bold '>gor:</p>
+					<p className='font-bold '>mumb:</p>
 					<p className='font-light '>
 						{newAddress?.substring(0, 6)}
 						{'...'}

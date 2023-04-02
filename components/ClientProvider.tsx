@@ -15,6 +15,7 @@ export const ClientContext = React.createContext<ClientProps>({});
 interface ClientProps {
 	safeAuth?: SafeAuthKit;
 	safeAuthSignInResponse?: any;
+	provider?: any;
 	logIn?: () => {};
 	logOut?: () => {};
 	newAccount?: string;
@@ -52,8 +53,8 @@ export default function RootLayout({
 		(async () => {
 			setSafeAuth(
 				await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, {
-					chainId: '0x5',
-					txServiceUrl: 'https://safe-transaction-goerli.safe.global',
+					chainId: '0x13881',
+					//txServiceUrl: 'https://safe-transaction-goerli.safe.global',
 					authProviderConfig: authProviderConfig as Web3AuthProviderConfig,
 				})
 			);
@@ -65,6 +66,7 @@ export default function RootLayout({
 		setClientProps({
 			safeAuth: safeAuth,
 			safeAuthSignInResponse: safeAuthSignInResponse,
+			provider: provider,
 			logIn: login,
 			logOut: logout,
 			newAccount: newAccount,
