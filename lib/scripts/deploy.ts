@@ -5,7 +5,7 @@ import {
 	MoonKeyGnosisSafeAccountFactory__factory,
 	EntryPoint__factory,
 } from '../typechains';
-import { _abi } from '../typechains/MoonKeyGnosisSafeAccountFactory__factory';
+//import { _abi } from '../typechains/MoonKeyGnosisSafeAccountFactory__factory';
 import { getUserOpHash } from './UserOp';
 import { UserOperation } from './UserOperation';
 import { getHttpRpcClient } from './getHttpRpcClient';
@@ -18,25 +18,34 @@ const provider = new ethers.providers.JsonRpcProvider(
 export async function deploy(ownerAddress: string) {
 	//const ownerAddress = await signer.getAddress();
 
-	const accountFactory = new ethers.Contract(accountAddress, _abi, provider);
+	const accountFactory = new ethers.Contract(
+		accountAddress,
+		[
+			'function createAccount(address owner, uint256 salt) public returns (address account)',
+			'function safeSingleton() returns (address)',
+			'function getAddress(address owner, uint256 salt) public returns (address account)',
+		],
+		provider
+	);
 
-	const accountInterface = new ethers.utils.Interface(_abi);
-	const unsignedHash = accountInterface.encodeFunctionData('createAccount', [
-		ownerAddress,
-		123,
-	]);
 	const counterfactualAddress: string =
 		await accountFactory.callStatic.getAddress(ownerAddress, 123);
 
 	console.log('safeSingletonAddress', await accountFactory.safeSingleton());
-	const initCode = hexConcat([accountAddress, unsignedHash]);
+	const initCode = hexConcat([
+		accountFactory.address,
+		accountFactory.interface.encodeFunctionData('createAccount', [
+			ownerAddress,
+			123,
+		]),
+	]);
 	console.log('initCode', initCode);
 
 	console.log('counterfactualAddress', counterfactualAddress);
 	return { initCode, counterfactualAddress };
 }
 
-export async function signFillOp(ownerAddress: string) {
+export async function fillOp(ownerAddress: string) {
 	const { initCode, counterfactualAddress } = await deploy(ownerAddress);
 	const op = {
 		sender: counterfactualAddress,
@@ -62,7 +71,7 @@ export async function createWallet(op: UserOperation) {
 	console.log('UserOperation: ', op);
 	const client = await getHttpRpcClient(
 		provider,
-		process.env.BUNDLER_URL!,
+		process.env.NEXT_PUBLIC_BUNDLER_URL!,
 		entrypointAddress
 	);
 	const uoHash = await client.sendUserOpToBundler(op);

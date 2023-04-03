@@ -9,7 +9,7 @@ import type {
 	MoonKeyGnosisSafeAccountFactoryInterface,
 } from './MoonKeyGnosisSafeAccountFactory';
 
-export const _abi = [
+const _abi = [
 	{
 		inputs: [
 			{

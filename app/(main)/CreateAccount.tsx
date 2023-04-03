@@ -2,7 +2,7 @@
 import { ClientContext } from '@/components/ClientProvider';
 import fetchFromDeploy from '@/lib/fetchFromDeploy';
 import { UserOperation } from '@/lib/scripts/UserOperation';
-import { signFillOp, createWallet } from '@/lib/scripts/deploy';
+import { fillOp, createWallet } from '@/lib/scripts/deploy';
 import { ethers } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
 import { useRouter } from 'next/navigation';
@@ -41,7 +41,7 @@ function CreateAccount() {
 	const handleCreateAccount = async () => {
 		const notification = toast.loading(`SigningIn...`);
 		try {
-			if (!safeAuthSignInResponse) if (logIn) await logIn();
+			if (!safeAuthSignInResponse) logIn!();
 
 			if (changeAddress && safeAuthSignInResponse) {
 				const prov = new ethers.providers.Web3Provider(
@@ -49,11 +49,11 @@ function CreateAccount() {
 				);
 				const signer: ethers.providers.JsonRpcSigner = prov.getSigner();
 
-				const res = await signFillOp(await signer.getAddress());
+				const res = await fillOp(await signer.getAddress());
 				const smartAccountAddress = res.counterfactualAddress;
 				changeAddress(smartAccountAddress);
 
-				if ((await prov.getCode(smartAccountAddress)) != null) {
+				if ((await prov.getCode(smartAccountAddress)) !== '0x') {
 					toast.success(
 						`SmartAccount already exist at ${smartAccountAddress.substring(
 							0,
@@ -64,9 +64,8 @@ function CreateAccount() {
 					router.push('/moons');
 					return;
 				}
-				if (
-					(await prov.getBalance(smartAccountAddress)) <= parseEther('0.09')
-				) {
+				const balance = await prov.getBalance(smartAccountAddress);
+				if (balance.lte(parseEther('0.09'))) {
 					toast.error(
 						`No paymaster found! And not enough balance on ${smartAccountAddress.substring(
 							0,
