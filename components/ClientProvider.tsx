@@ -15,6 +15,7 @@ export const ClientContext = React.createContext<ClientProps>({});
 interface ClientProps {
 	safeAuth?: SafeAuthKit;
 	safeAuthSignInResponse?: any;
+	provider?: any;
 	logIn?: () => {};
 	logOut?: () => {};
 	newAccount?: string;
@@ -37,7 +38,7 @@ export default function RootLayout({
 	const [clientProps, setClientProps] = useState<ClientProps>({});
 	const [newAccount, setNewAccount] = useState('Account-1');
 	const [newAddress, setNewAddress] = useState(
-		'0xF6C465A2778b8e26bB1e18aEad588404FFFFf243'
+		'0x996f40e8FB99Bb0Cba3231C88186d74C27B232D2'
 	);
 	const changeAccount = (account: string) => {
 		if (!account) return;
@@ -52,8 +53,8 @@ export default function RootLayout({
 		(async () => {
 			setSafeAuth(
 				await SafeAuthKit.init(SafeAuthProviderType.Web3Auth, {
-					chainId: '0x5',
-					txServiceUrl: 'https://safe-transaction-goerli.safe.global',
+					chainId: '0x13881',
+					//txServiceUrl: 'https://safe-transaction-goerli.safe.global',
 					authProviderConfig: authProviderConfig as Web3AuthProviderConfig,
 				})
 			);
@@ -65,6 +66,7 @@ export default function RootLayout({
 		setClientProps({
 			safeAuth: safeAuth,
 			safeAuthSignInResponse: safeAuthSignInResponse,
+			provider: provider,
 			logIn: login,
 			logOut: logout,
 			newAccount: newAccount,

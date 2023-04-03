@@ -1,7 +1,7 @@
 'use client';
 import { useContext, useEffect, useState } from 'react';
 import { GiTwoCoins } from 'react-icons/gi';
-import { BiTransferAlt, BiDollarCircle } from 'react-icons/bi';
+import { BiTransferAlt, BiDollarCircle, BiCopy } from 'react-icons/bi';
 import { TbPlanet } from 'react-icons/tb';
 import { AiFillTool } from 'react-icons/ai';
 import { MdVpnKey } from 'react-icons/md';
@@ -38,12 +38,18 @@ function Sidebar() {
 					<p className='text-gray-300'>{newAccount}</p>
 				</div>
 				<div className='flex flex-row items-center justify-center'>
-					<p className='font-bold '>gor:</p>
+					<p className='font-bold '>mumb:</p>
 					<p className='font-light '>
 						{newAddress?.substring(0, 6)}
 						{'...'}
 						{newAddress?.substring(newAddress.length - 4)}
 					</p>
+					<button
+						className='cursor-pointer hover:bg-gray-600 hover:text-white'
+						onClick={() => navigator.clipboard.writeText(newAddress!)}
+					>
+						<BiCopy size={10} />
+					</button>
 				</div>
 			</div>
 			{/* Divider line */}
