@@ -8,7 +8,6 @@ import { parseEther } from 'ethers/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useContext, useState } from 'react';
 import toast from 'react-hot-toast';
-import { useContext, useEffect, useState } from 'react';
 import { AiFillCloseSquare } from 'react-icons/ai';
 import { BiAddToQueue, BiImport } from 'react-icons/bi';
 //import useSWR from 'swr';
@@ -103,14 +102,6 @@ function CreateAccount() {
 	const handleImportAccount = () => {
 		setShowModal(true);
 	};
-	useEffect(() => {
-		if (!safeAuthSignInResponse) return;
-		if (changeAddress) changeAddress(safeAuthSignInResponse.eoa);
-		if (changeAccount) changeAccount(safeAuthSignInResponse.safe[0]);
-		console.log(safeAuthSignInResponse);
-		router.push('/moons');
-
-	}, [safeAuthSignInResponse])
 
 	return (
 		<>
