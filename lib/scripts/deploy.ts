@@ -5,7 +5,7 @@ import {
 	MoonKeyGnosisSafeAccountFactory__factory,
 	EntryPoint__factory,
 } from '../typechains';
-import { _abi } from '../typechains/MoonKeyGnosisSafeAccountFactory__factory';
+//import { _abi } from '../typechains/MoonKeyGnosisSafeAccountFactory__factory';
 import { getUserOpHash } from './UserOp';
 import { UserOperation } from './UserOperation';
 import { getHttpRpcClient } from './getHttpRpcClient';
@@ -20,19 +20,39 @@ export async function deploy(
 	provider: ethers.providers.JsonRpcProvider
 ) {
 	//const ownerAddress = await signer.getAddress();
+	//const accountFactory = new ethers.Contract(accountAddress, _abi, provider);
+	const accountFactory = new ethers.Contract(
+		accountAddress,
+		[
+			'function createAccount(address owner, uint256 salt) public returns (address account)',
+			'function safeSingleton() returns (address)',
+			'function getAddress(address owner, uint256 salt) public returns (address account)',
+		],
+		provider
+	);
+	console.log(
+		'safeSingletonAddress',
+		await accountFactory.callStatic.safeSingleton()
+	);
 
-	const accountFactory = new ethers.Contract(accountAddress, _abi, provider);
-
-	const accountInterface = new ethers.utils.Interface(_abi);
-	const unsignedHash = accountInterface.encodeFunctionData('createAccount', [
+	//const accountInterface = new ethers.utils.Interface(_abi);
+	//const unsignedHash = accountInterface.encodeFunctionData('createAccount', [
+	//	ownerAddress,
+	//	123,
+	//]);
+	const counterfactualAddress = await accountFactory.callStatic.getAddress(
 		ownerAddress,
-		123,
-	]);
-	const counterfactualAddress: string =
-		await accountFactory.callStatic.getAddress(ownerAddress, 123);
+		1234
+	);
 
-	console.log('safeSingletonAddress', await accountFactory.safeSingleton());
-	const initCode = hexConcat([accountAddress, unsignedHash]);
+	//console.log('safeSingletonAddress', await accountFactory.safeSingleton());
+	const initCode = hexConcat([
+		accountFactory.address,
+		accountFactory.interface.encodeFunctionData('createAccount', [
+			ownerAddress,
+			1234,
+		]),
+	]);
 	console.log('initCode', initCode);
 
 	console.log('counterfactualAddress', counterfactualAddress);
@@ -58,8 +78,8 @@ export async function fillOp(
 		provider as ethers.providers.Provider
 	);
 	const chainId = await provider!.getNetwork().then((net) => net.chainId);
-	const message = getUserOpHash(op2, entrypointAddress, chainId);
-	console.log('UserOpUnsigned: ', op);
+	const message = arrayify(getUserOpHash(op2, entrypointAddress, chainId));
+
 	return {
 		message: message,
 		op2: op2,
@@ -67,7 +87,7 @@ export async function fillOp(
 	};
 }
 
-export async function createWallet(
+export async function sendToBundler(
 	op: UserOperation,
 	provider: ethers.providers.JsonRpcProvider
 ) {
