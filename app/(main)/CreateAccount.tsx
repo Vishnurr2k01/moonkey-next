@@ -2,7 +2,7 @@
 import { ClientContext } from '@/components/ClientProvider';
 import fetchFromDeploy from '@/lib/fetchFromDeploy';
 import { UserOperation } from '@/lib/scripts/UserOperation';
-import { fillOp, createWallet } from '@/lib/scripts/deploy';
+import { fillOp, sendToBundler } from '@/lib/scripts/deploy';
 import { ethers } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
 import { useRouter } from 'next/navigation';
@@ -39,11 +39,11 @@ function CreateAccount() {
 		console.log(newAddress);
 	};
 	const handleCreateAccount = async () => {
-		const notification = toast.loading(`SigningIn...`);
+		const notification = toast.loading(`SigningIn...`, { duration: 2000 });
 		try {
 			if (!safeAuthSignInResponse) logIn!();
 
-			if (changeAddress) {
+			if (changeAddress && provider) {
 				const prov = new ethers.providers.Web3Provider(
 					provider as ethers.providers.ExternalProvider
 				);
@@ -59,7 +59,7 @@ function CreateAccount() {
 							0,
 							6
 						)}`,
-						{ id: notification }
+						{ id: notification, duration: 5000 }
 					);
 					router.push('/moons');
 					return;
@@ -71,28 +71,30 @@ function CreateAccount() {
 							0,
 							6
 						)}`,
-						{ id: notification }
+						{ id: notification, duration: 5000 }
 					);
 					router.push('/moons/transactions');
 					return;
 				}
 				const signature = await signer.signMessage(res.message);
 				const op: UserOperation = { ...res.op2, signature: signature };
-				await createWallet(op, prov);
+				await sendToBundler(op, prov);
 				toast.success(
 					`Deployed smart account at ${smartAccountAddress.substring(0, 6)}`,
-					{ id: notification }
+					{ id: notification, duration: 5000 }
 				);
 
 				router.push('/moons');
 				return;
 			}
-			toast.error(`Whoops... Unexpected exit! Check console`, {
+			toast.error(`Whoops... Unexpected exit! Click-again`, {
 				id: notification,
+				duration: 2000,
 			});
 		} catch (error) {
 			toast.error(`Whoops... Something went wrong! Check console`, {
 				id: notification,
+				duration: 5000,
 			});
 			console.error(error);
 		}
