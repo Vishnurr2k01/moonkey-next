@@ -43,7 +43,7 @@ function CreateAccount() {
 		try {
 			if (!safeAuthSignInResponse) logIn!();
 
-			if (changeAddress && safeAuthSignInResponse) {
+			if (changeAddress) {
 				const prov = new ethers.providers.Web3Provider(
 					provider as ethers.providers.ExternalProvider
 				);
@@ -57,7 +57,7 @@ function CreateAccount() {
 					toast.success(
 						`SmartAccount already exist at ${smartAccountAddress.substring(
 							0,
-							4
+							6
 						)}`,
 						{ id: notification }
 					);
@@ -69,7 +69,7 @@ function CreateAccount() {
 					toast.error(
 						`No paymaster found! And not enough balance on ${smartAccountAddress.substring(
 							0,
-							4
+							6
 						)}`,
 						{ id: notification }
 					);
@@ -80,12 +80,16 @@ function CreateAccount() {
 				const op: UserOperation = { ...res.op2, signature: signature };
 				await createWallet(op, prov);
 				toast.success(
-					`Deployed smart account at ${smartAccountAddress.substring(0, 4)}`,
+					`Deployed smart account at ${smartAccountAddress.substring(0, 6)}`,
 					{ id: notification }
 				);
 
 				router.push('/moons');
+				return;
 			}
+			toast.error(`Whoops... Unexpected exit! Check console`, {
+				id: notification,
+			});
 		} catch (error) {
 			toast.error(`Whoops... Something went wrong! Check console`, {
 				id: notification,
