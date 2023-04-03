@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { executeTx } from './execute';
 
 export async function executeErc20(
-	wallet: ethers.Wallet,
+	ownerAddress: string,
 	provider: ethers.providers.JsonRpcProvider,
 	amount: number,
 	to: string,
@@ -15,5 +15,5 @@ export async function executeErc20(
 	if (!toContract) toContract = '0xE097d6B3100777DC31B34dC2c58fB524C2e76921'; //ERC20 token address
 	const erc20 = new ethers.utils.Interface(erc20ABI);
 	const callData = erc20.encodeFunctionData('transfer', [to, amount]);
-	executeTx(wallet, provider, amount, toContract, callData);
+	executeTx(ownerAddress, provider, amount, toContract, callData);
 }
