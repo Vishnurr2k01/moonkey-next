@@ -49,7 +49,7 @@ function CreateAccount() {
 				);
 				const signer: ethers.providers.JsonRpcSigner = prov.getSigner();
 
-				const res = await fillOp(await signer.getAddress());
+				const res = await fillOp(await signer.getAddress(), prov);
 				const smartAccountAddress = res.counterfactualAddress;
 				changeAddress(smartAccountAddress);
 
@@ -78,7 +78,7 @@ function CreateAccount() {
 				}
 				const signature = await signer.signMessage(res.message);
 				const op: UserOperation = { ...res.op2, signature: signature };
-				await createWallet(op);
+				await createWallet(op, prov);
 				toast.success(
 					`Deployed smart account at ${smartAccountAddress.substring(0, 4)}`,
 					{ id: notification }
