@@ -1,7 +1,7 @@
 'use client';
 
 import { ClientContext } from '@/components/ClientProvider';
-import { useContext, useState } from 'react';
+import { SetStateAction, useContext, useState } from 'react';
 import { fillOp, sendToBundler } from '@/lib/scripts/deploy';
 import { executeTx } from '@/lib/scripts/execute';
 import toast from 'react-hot-toast';
@@ -102,50 +102,48 @@ function Transaction() {
 			console.error(error);
 		}
 	};
+	const handleChange = {
+		amount: (event: any) => {
+			setSendAmount(event.target.value);
+		},
+		address: (event: any) => {
+			setReceiverAddress(event.target.value);
+		},
+	};
 	return (
 		<div className='col-span-6 bg-[#F7F7F7] h-full'>
 			{/* Header tab goes here */}
 			<div className='flex flex-col items-center justify-center h-screen px-2'>
-				<h1 className='text-2xl font-bold mb-20'>Transfer</h1>
-				<div>
-					<div className='flex space-x-2 text-center'>
-						<div className='flex flex-col items-center justify-center mb-5'>
-							{/* Send icon */}
-							<BsSendFill size={25} />
-							<h2>Send</h2>
-						</div>
-						<div className='space-y-2'>
-							<button
-								className='cursor-pointer p-4 bg-gray-700/50 rounded-lg max-w-[300px] text-white hover:bg-gray-700/90'
-								onClick={async () =>
-									await sendTransaction(newAddress!, 1, '0x')
-								}
-							>
-								{'Send 1-wei to your smart account as first transaction'}
-							</button>
-							<button
-								className='cursor-pointer p-4 bg-gray-700/50 rounded-lg max-w-[300px] text-white hover:bg-gray-700/90'
-								onClick={async () =>
-									await sendTransaction(newAddress!, sendAmount, '0x')
-								}
-							>
-								Send specified amount to your smart account
-							</button>
-						</div>
-					</div>
-					<div>
-						<div>
-							<div className='flex flex-col items-center justify-center mb-5'>
-								<GrSend size={25} />
-								<h2>Send-To</h2>
+				<h1 className='text-2xl font-bold mb-10'>Transfer</h1>
+				<div className='flex space-x-2'>
+					<div className='space-x-2 justify-between'>
+						{/* <div className='flex items-center justify-center mb-2'>
+							<BsSendFill size={15} />
+							<h2 className='m-1'>Send</h2>
+						</div> */}
+						<div className='space-y-2 flex-col text-white'>
+							<div className='flex flex-col space-y-2 justify-between'>
+								<input
+									className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full mt-3 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+									type='number'
+									placeholder='Enter amount to transfer'
+									onChange={handleChange.amount}
+								/>
+								<input
+									className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full mt-3 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+									type='number'
+									placeholder='Enter receiver address'
+									onChange={handleChange.address}
+								/>
 							</div>
 							<button
-								className='cursor-pointer p-4 bg-gray-700/50 rounded-lg max-w-[300px] text-white hover:bg-gray-700/90'
+								className='flex items-center justify-center cursor-pointer p-4 bg-blue-700/50 rounded-lg max-w-[300px] text-white hover:bg-blue-700/90'
 								onClick={async () =>
 									await sendTransaction(receiverAddress, sendAmount, '0x')
 								}
 							>
-								Send {sendAmount} to beneficiary
+								<BsSendFill size={15} />
+								<span className='m-1'>Send</span>
 							</button>
 						</div>
 					</div>
