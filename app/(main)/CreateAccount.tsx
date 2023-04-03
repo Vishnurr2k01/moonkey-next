@@ -1,9 +1,16 @@
 'use client';
 import { ClientContext } from '@/components/ClientProvider';
+import fetchFromDeploy from '@/lib/fetchFromDeploy';
+import { UserOperation } from '@/lib/scripts/UserOperation';
+import { fillOp, createWallet } from '@/lib/scripts/deploy';
+import { ethers } from 'ethers';
+import { parseEther } from 'ethers/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useContext, useState } from 'react';
+import toast from 'react-hot-toast';
 import { AiFillCloseSquare } from 'react-icons/ai';
 import { BiAddToQueue, BiImport } from 'react-icons/bi';
+//import useSWR from 'swr';
 
 function CreateAccount() {
 	const {
@@ -13,27 +20,82 @@ function CreateAccount() {
 		newAddress,
 		safeAuthSignInResponse,
 		logIn,
+		safeAuth,
+		provider,
 	} = useContext(ClientContext);
 
+	//const { data, error, isLoading } = useSWR('/api/deploy', fetchFromDeploy(ownerAddress), {
+	//	revalidateOnFocus: false,
+	//});
 	const [showModal, setShowModal] = useState(false);
-	const [accountName, setAccountName] = useState('');
-	const [address, setAddress] = useState('');
+
 	const router = useRouter();
 	const accountNameChange = (event: { target: { value: string } }) => {
-		setAccountName(event.target.value);
 		if (changeAccount) changeAccount(event.target.value);
 		console.log(newAccount);
 	};
 	const addressChange = (event: { target: { value: string } }) => {
-		setAddress(event.target.value);
 		if (changeAddress) changeAddress(event.target.value);
 		console.log(newAddress);
 	};
 	const handleCreateAccount = async () => {
-		if (!safeAuthSignInResponse) if (logIn) await logIn();
-		if (changeAddress) changeAddress(safeAuthSignInResponse?.eoa);
+		const notification = toast.loading(`SigningIn...`);
+		try {
+			if (!safeAuthSignInResponse) logIn!();
 
-		router.push('/moons');
+			if (changeAddress) {
+				const prov = new ethers.providers.Web3Provider(
+					provider as ethers.providers.ExternalProvider
+				);
+				const signer: ethers.providers.JsonRpcSigner = prov.getSigner();
+
+				const res = await fillOp(await signer.getAddress(), prov);
+				const smartAccountAddress = res.counterfactualAddress;
+				changeAddress(smartAccountAddress);
+
+				if ((await prov.getCode(smartAccountAddress)) !== '0x') {
+					toast.success(
+						`SmartAccount already exist at ${smartAccountAddress.substring(
+							0,
+							6
+						)}`,
+						{ id: notification }
+					);
+					router.push('/moons');
+					return;
+				}
+				const balance = await prov.getBalance(smartAccountAddress);
+				if (balance.lte(parseEther('0.09'))) {
+					toast.error(
+						`No paymaster found! And not enough balance on ${smartAccountAddress.substring(
+							0,
+							6
+						)}`,
+						{ id: notification }
+					);
+					router.push('/moons/transactions');
+					return;
+				}
+				const signature = await signer.signMessage(res.message);
+				const op: UserOperation = { ...res.op2, signature: signature };
+				await createWallet(op, prov);
+				toast.success(
+					`Deployed smart account at ${smartAccountAddress.substring(0, 6)}`,
+					{ id: notification }
+				);
+
+				router.push('/moons');
+				return;
+			}
+			toast.error(`Whoops... Unexpected exit! Check console`, {
+				id: notification,
+			});
+		} catch (error) {
+			toast.error(`Whoops... Something went wrong! Check console`, {
+				id: notification,
+			});
+			console.error(error);
+		}
 	};
 	const handleImportAccount = () => {
 		setShowModal(true);
