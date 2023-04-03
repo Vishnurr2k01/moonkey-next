@@ -9,6 +9,7 @@ import {
 import { getUserOpHash } from './UserOp';
 import { UserOperation } from './UserOperation';
 import { getHttpRpcClient } from './getHttpRpcClient';
+import { getUserOpReceipt } from './getUserOpReceipt';
 
 const entrypointAddress = '0x0576a174D229E3cFA37253523E645A78A0C91B57'; //EntryPoint
 const accountAddress = '0x92B0C7DA4719E9f784a663dC0DB1931221143739'; //MoonKeyGonosisAccountFactory
@@ -101,6 +102,13 @@ export async function sendToBundler(
 	console.log(`UserOpHash: ${uoHash}`);
 
 	console.log('Waiting for transaction...');
+	const txHash = await getUserOpReceipt(
+		provider,
+		entrypointAddress,
+		provider.getSigner(),
+		uoHash
+	);
+	console.log(`Transaction hash: ${txHash}`);
 }
 /*
 async function main() {
