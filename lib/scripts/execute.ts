@@ -18,44 +18,44 @@ export async function executeTx(
 	to: string,
 	callData: string
 ) {
-	const owner = wallet.connect(provider);
-	const ownerAddress = await owner.getAddress();
-
-	const safeSingleton = new MoonKeyPluginSafe__factory(owner).attach(
-		safeSingletonAddress
-	);
-	const safe_execTxCallData = safeSingleton.interface.encodeFunctionData(
-		'executeAndRevert',
-		[to, amount, callData, 0]
-	);
-
-	const accountFactory = new MoonKeyGnosisSafeAccountFactory__factory(
-		owner
-	).attach(accountAddress);
-
-	const counterfactualAddress = await accountFactory.callStatic.getAddress(
-		ownerAddress,
-		123
-	);
-
-	const entryPoint = new EntryPoint__factory(owner).attach(entrypointAddress);
-	const op = await fillAndSign(
-		{
-			sender: counterfactualAddress, //The account
-			callData: safe_execTxCallData,
-		},
-		owner,
-		entryPoint
-	);
-	console.log('UserOp', op);
-
-	const client = await getHttpRpcClient(
-		provider,
-		process.env.BUNDLER_URL!,
-		entrypointAddress
-	);
-	const uoHash = await client.sendUserOpToBundler(op);
-	console.log(`UserOpHash: ${uoHash}`);
+	//const owner = wallet.connect(provider);
+	//const ownerAddress = await owner.getAddress();
+	//
+	//const safeSingleton = new MoonKeyPluginSafe__factory(owner).attach(
+	//	safeSingletonAddress
+	//);
+	//const safe_execTxCallData = safeSingleton.interface.encodeFunctionData(
+	//	'executeAndRevert',
+	//	[to, amount, callData, 0]
+	//);
+	//
+	//const accountFactory = new MoonKeyGnosisSafeAccountFactory__factory(
+	//	owner
+	//).attach(accountAddress);
+	//
+	//const counterfactualAddress = await accountFactory.callStatic.getAddress(
+	//	ownerAddress,
+	//	123
+	//);
+	//
+	//const entryPoint = new EntryPoint__factory(owner).attach(entrypointAddress);
+	//const op = await fillAndSign(
+	//	{
+	//		sender: counterfactualAddress, //The account
+	//		callData: safe_execTxCallData,
+	//	},
+	//	owner,
+	//	entryPoint
+	//);
+	//console.log('UserOp', op);
+	//
+	//const client = await getHttpRpcClient(
+	//	provider,
+	//	process.env.BUNDLER_URL!,
+	//	entrypointAddress
+	//);
+	//const uoHash = await client.sendUserOpToBundler(op);
+	//console.log(`UserOpHash: ${uoHash}`);
 
 	console.log('Waiting for transaction...');
 }
