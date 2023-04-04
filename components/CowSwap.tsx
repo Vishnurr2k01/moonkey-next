@@ -1,12 +1,13 @@
 'use client'
 import { ClientContext } from "./ClientProvider";
-import { useContext, useEffect, useRef, useState } from 'react';
+import { MutableRefObject, useContext, useEffect, useRef } from 'react';
 import  SafeAppsSDK  from '@gnosis.pm/safe-apps-sdk'
 
 const CowSwap = () => {
+  if(ClientContext !instanceof ClientProps) return;
   const { safeAuth, safeAuthSignInResponse } = useContext(ClientContext);
   const safeAddress = safeAuthSignInResponse?.safes[0];
-  const iframeRef = useRef(null);
+  const iframeRef = useRef<HTMLIFrameElement>();
   const appsSDK = new SafeAppsSDK();
 
   useEffect(() => {
