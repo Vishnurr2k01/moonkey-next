@@ -50,7 +50,7 @@ function Transaction() {
 
 			const smartAccountAddress = res.counterfactualAddress;
 			if (
-				(await prov.getCode(smartAccountAddress)) === '0x' &&
+				(await prov.getCode(smartAccountAddress)).length <= 2 &&
 				smartAccountAddress === newAddress
 			) {
 				toast.loading(
