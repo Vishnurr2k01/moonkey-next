@@ -1,5 +1,5 @@
-function page() {
-	return <div className='col-span-6 bg-[#F7F7F7] h-full'>Mods</div>;
-}
+import Roles from './Roles';
 
-export default page;
+export default function Home() {
+	return <Roles />;
+}
