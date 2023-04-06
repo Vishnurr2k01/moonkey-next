@@ -9,6 +9,8 @@ import {
 	Web3AuthProviderConfig,
 } from '@safe-global/auth-kit';
 import { SafeEventEmitterProvider } from '@web3auth/base';
+import SafeProvider, { useSafeAppsSDK } from '@safe-global/safe-apps-react-sdk';
+import { SafeAppProvider } from '@safe-global/safe-apps-provider'
 
 export const ClientContext = React.createContext<ClientProps>({
 	logIn: function (): {} {
@@ -76,6 +78,8 @@ export default function RootLayout({
 		})();
 	}, []);
 
+
+
 	useEffect(() => {
 		if (!safeAuth) return;
 		setClientProps({
@@ -106,11 +110,13 @@ export default function RootLayout({
 		setProvider(null);
 		setSafeAuthSignInResponse(null);
 	};
-	return (<>{ clientProps && (
+	return (<>{clientProps && (
 		<ClientContext.Provider value={clientProps}>
-			<Toaster position='bottom-center' />
-			{children}
+			<SafeProvider>
+				<Toaster position='bottom-center' />
+				{children}
+			</SafeProvider>
 		</ClientContext.Provider>)}
-		</>
+	</>
 	);
 }
