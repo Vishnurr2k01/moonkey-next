@@ -1,4 +1,9 @@
-import { hexConcat, parseEther, arrayify } from 'ethers/lib/utils';
+import {
+	hexConcat,
+	parseEther,
+	arrayify,
+	defaultAbiCoder,
+} from 'ethers/lib/utils';
 import { ethers } from 'ethers';
 import { fillAndSign, fillUserOp } from './UserOp';
 import {
@@ -10,6 +15,7 @@ import { getUserOpHash } from './UserOp';
 import { UserOperation } from './UserOperation';
 import { getHttpRpcClient } from './getHttpRpcClient';
 import { getUserOpReceipt } from './getUserOpReceipt';
+import { VALID_AFTER, VALID_UNTIL, paymasterAddress } from '../constants';
 
 const entrypointAddress = '0x0576a174D229E3cFA37253523E645A78A0C91B57'; //EntryPoint
 const accountAddress = '0x92B0C7DA4719E9f784a663dC0DB1931221143739'; //MoonKeyGonosisAccountFactory
@@ -84,6 +90,40 @@ export async function fillOp(
 	return {
 		message: message,
 		op2: op2,
+		counterfactualAddress: counterfactualAddress,
+	};
+}
+export async function fillOpPaymaster(
+	ownerAddress: string,
+	provider: ethers.providers.JsonRpcProvider
+) {
+	const { initCode, counterfactualAddress } = await deploy(
+		ownerAddress,
+		provider
+	);
+	const op = {
+		sender: counterfactualAddress,
+		initCode,
+		verificationGasLimit: 400000,
+		paymasterAndData: hexConcat([
+			paymasterAddress,
+			defaultAbiCoder.encode(['uint48', 'uint48'], [VALID_UNTIL, VALID_AFTER]),
+			'0x' + '00'.repeat(65),
+		]),
+	};
+	const userOp = await fillUserOp(
+		op,
+		entrypointAddress,
+		provider as ethers.providers.Provider
+	);
+
+	console.log('UserOp', userOp);
+	const chainId = await provider!.getNetwork().then((net) => net.chainId);
+	const message = arrayify(getUserOpHash(userOp, entrypointAddress, chainId));
+
+	return {
+		message: message,
+		userOp: userOp,
 		counterfactualAddress: counterfactualAddress,
 	};
 }

@@ -39,6 +39,10 @@ interface Props {
 	includedTokens?: string[];
 	disableSelection?: boolean;
 	readOnly?: boolean;
+	balance?: string;
+	amount?: string;
+	logoURI: string;
+	tokenSymbol: string;
 }
 export const toBigNumber = (
 	num: BigNumberEther | string | number | BigNumber
@@ -55,6 +59,10 @@ function Transfer({
 	disableSelection,
 	readOnly,
 	handleChange,
+	logoURI,
+	tokenSymbol,
+	amount,
+	balance,
 }: Props) {
 	const [isFiat, setIsFiat] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -77,35 +85,33 @@ function Transfer({
 		<div>
 			<div className='flex justify-between px-[10px] mb-[10px] text-charcoal text-opacity-50 dark:text-light dark:text-opacity-50'>
 				{label && <div>{label}</div>}
-				{input?.token &&
-					input?.token.balance &&
-					Number(input?.token.balance) > 0 && (
-						<button
-							onClick={() => {
-								if (!disabled && input)
-									if (input.token.balanceUsd && isFiat)
-										handleChange!(input.token.balanceUsd.toString());
-									else if (input.token.balance && !isFiat)
-										handleChange!(input.token.balance.toString());
-							}}
-							className={`flex items-center bg-transparent border-none ${
-								disabled
-									? 'cursor-text'
-									: 'hover:text-primary transition-colors duration-300'
-							}`}
-						>
-							Balance: {input?.token.balance}
-							{!disabled && (
-								<span
-									className={
-										'bg-primary/20 text-primary ml-[5px] px-[6px] py-[2px] rounded-full text-[10px]'
-									}
-								>
-									Max
-								</span>
-							)}
-						</button>
-					)}
+				{balance && Number(balance) > 0 && (
+					<button
+						onClick={() => {
+							if (!disabled && input)
+								if (input.token.balanceUsd && isFiat)
+									handleChange!(input.token.balanceUsd.toString());
+								else if (input.token.balance && !isFiat)
+									handleChange!(input.token.balance.toString());
+						}}
+						className={`flex items-center bg-transparent border-none ${
+							disabled
+								? 'cursor-text'
+								: 'hover:text-primary transition-colors duration-300'
+						}`}
+					>
+						Balance: {balance}
+						{!disabled && (
+							<span
+								className={
+									'bg-primary/20 text-primary ml-[5px] px-[6px] py-[2px] rounded-full text-[10px]'
+								}
+							>
+								Max
+							</span>
+						)}
+					</button>
+				)}
 			</div>
 			<div
 				className={`border-2 ${
@@ -121,7 +127,7 @@ function Transfer({
 					</div>
 				)}
 				<div className='flex-none'>
-					{input && (
+					{tokenSymbol && (
 						<button
 							className={`cursor-pointer bg-transparent border-none outline-none flex items-center space-x-10 hover:text-primary transition-colors duration-300`}
 							onClick={(e) => {
@@ -134,9 +140,9 @@ function Transfer({
 							<Image
 								alt={'Token Logo'}
 								className={'w-[40px] h-[40px] rounded-full'}
-								src={input.token.logoURI}
+								src={logoURI}
 							/>
-							<div className='text-[20px]'>{input.token.symbol}</div>
+							<div className='text-[20px]'>{tokenSymbol}</div>
 						</button>
 					)}
 				</div>
@@ -147,7 +153,7 @@ function Transfer({
 						}}
 						className='flex flex-col border-none justify-center flex-grow h-full text-right cursor-text'
 					>
-						{!isLoading && input ? (
+						{!isLoading ? (
 							<>
 								<input
 									ref={inputRef}
@@ -160,12 +166,12 @@ function Transfer({
 										if (!readOnly) handleFocusChange(true);
 									}}
 								/>
-								{toBigNumber(input.inputTkn).plus(input.inputFiat).gt(0) && (
+								{/* {toBigNumber(input.inputTkn).plus(input.inputFiat).gt(0) && (
 									<div className='text-charcoal text-opacity-50 dark:text-light dark:text-opacity-50 text-[12px]'>
 										{(!isFiat ? input.inputFiat : input.inputTkn, !isFiat)}{' '}
 										{input.oppositeUnit}
 									</div>
-								)}
+								)} */}
 							</>
 						) : (
 							tokens &&

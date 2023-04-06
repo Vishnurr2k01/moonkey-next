@@ -1,20 +1,19 @@
 'use client';
 import { Button, ButtonSize, ButtonVariant } from '@/components/button/Button';
 import { ModalV3 } from '@/components/modal/ModalV3';
-import SwapSwitch from '@/components/widget/SwapSwitch';
-import { useCallback, useContext, useRef, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import BigNumber from 'bignumber.js';
 import { BigNumber as BigNumberEther } from 'ethers';
-import { Image } from '@/components/image/Image';
 import Transfer from './Transfer';
-import { TransferETH } from './TransferETH';
 import toast from 'react-hot-toast';
-import { fillOp, sendToBundler } from '@/lib/scripts/deploy';
+import { fillOp, fillOpPaymaster, sendToBundler } from '@/lib/scripts/deploy';
 import { UserOperation } from '@/lib/scripts/UserOperation';
 import { parseEther } from 'ethers/lib/utils';
-import { executeTx } from '@/lib/scripts/execute';
 import { ethers } from 'ethers';
 import { ClientContext } from '@/components/ClientProvider';
+import { paymaster, paymasterSigned } from '@/lib/scripts/paymaster';
+import Token from './Token';
+import { DAIAddress, USDCAddress, WETHAddress } from '@/lib/constants';
 
 const toBigNumber = (
 	num: BigNumberEther | string | number | BigNumber
@@ -33,32 +32,11 @@ function Assets() {
 	const [amount, setAmount] = useState('1');
 	const [inputFiat, setInputFiat] = useState('');
 	const [isFiat, setIsFiat] = useState(false);
+	const [balance, setBalance] = useState('');
 	const handleClick = useCallback(() => {}, [amount, inputFiat, isFiat]);
+	const [logoURI, setLogoURI] = useState('/logos/matic-token-icon.webp');
+	const [tokenSymbol, setTokenSymbol] = useState('MATIC');
 
-	const token = {
-		address: '0x996f40e8FB99Bb0Cba3231C88186d74C27B232D2',
-		decimals: 18,
-		name: 'MATIC',
-		symbol: 'MATIC',
-		balance: '1.22',
-		balanceUsd: 1.24,
-		usdPrice: '1.01',
-		isExternal: false,
-
-		logoURI: '/logos/matic-token-icon.webp',
-	};
-
-	const tokenInputField = {
-		handleChange: () => null,
-		inputUnit: 'ETH',
-		oppositeUnit: 'USD',
-		inputTkn: 'MATIC',
-		setInputTkn: () => null,
-		inputFiat: '1',
-		setInputFiat: () => null,
-		isTyping: false,
-		token: token,
-	};
 	const inputErrorMsg = 'Insufficent balance';
 	const handleChange = {
 		address: (event: any) => {
@@ -75,7 +53,7 @@ function Assets() {
 	const sendTransaction = async (
 		to: string,
 		amount: number,
-		callData: string
+		toContract: string
 	) => {
 		const notification = toast.loading(
 			`Sending ${amount} to ${to.substring(0, 6)}`,
@@ -95,12 +73,12 @@ function Assets() {
 				provider as ethers.providers.ExternalProvider
 			);
 			const signer: ethers.providers.JsonRpcSigner = prov.getSigner();
-			const res = await executeTx(
+			const res = await paymaster(
 				await signer.getAddress(),
 				prov,
 				amount,
 				to,
-				callData
+				toContract
 			);
 
 			const smartAccountAddress = res.counterfactualAddress;
@@ -112,18 +90,21 @@ function Assets() {
 					`Deploying a Smart Account ${smartAccountAddress.substring(0, 6)}`,
 					{ id: notification, duration: 5000 }
 				);
-				const balance = await prov.getBalance(smartAccountAddress);
-				if (balance.lte(parseEther('0.001'))) {
-					toast.error(
-						`No paymaster found! And not enough balance to deploy ${smartAccountAddress.substring(
-							0,
-							6
-						)}`,
-						{ id: notification, duration: 5000 }
-					);
-					return;
-				}
-				const resDeploy = await fillOp(await signer.getAddress(), prov);
+				//const balance = await prov.getBalance(smartAccountAddress);
+				//if (balance.lte(parseEther('0.001'))) {
+				//	toast.error(
+				//		`No paymaster found! And not enough balance to deploy ${smartAccountAddress.substring(
+				//			0,
+				//			6
+				//		)}`,
+				//		{ id: notification, duration: 5000 }
+				//	);
+				//	return;
+				//}
+				const resDeploy = await fillOpPaymaster(
+					await signer.getAddress(),
+					prov
+				);
 				if (resDeploy.counterfactualAddress !== smartAccountAddress) {
 					toast.error(
 						`Found conflicting address, confirm that the signer is connected to the address ${smartAccountAddress.substring(
@@ -135,16 +116,22 @@ function Assets() {
 					return;
 				}
 				const signature = await signer.signMessage(resDeploy.message);
-				const op: UserOperation = { ...res.op2, signature: signature };
-				await sendToBundler(op, prov);
+				const op: UserOperation = { ...resDeploy.userOp, signature: signature };
+				const res2 = await paymasterSigned(op, prov);
+				const sig2 = await signer.signMessage(res2.message);
+				const op2: UserOperation = { ...res2.userOp, signature: sig2 };
+				await sendToBundler(op2, prov);
 				toast.success(
 					`Deployed smart account at ${smartAccountAddress.substring(0, 6)}`,
 					{ id: notification, duration: 5000 }
 				);
 			}
 			const signature = await signer.signMessage(res.message);
-			const op: UserOperation = { ...res.op2, signature: signature };
-			await sendToBundler(op, prov);
+			const op: UserOperation = { ...res.userOp, signature: signature };
+			const res2 = await paymasterSigned(op, prov);
+			const sig2 = await signer.signMessage(res2.message);
+			const op2: UserOperation = { ...res2.userOp, signature: sig2 };
+			await sendToBundler(op2, prov);
 			toast.success(`Sent ${amount} to ${to.substring(0, 6)}`, {
 				id: notification,
 				duration: 5000,
@@ -158,20 +145,75 @@ function Assets() {
 		}
 	};
 
+	async function clickedP() {
+		// Find balance of the token provided
+		if (tokenSymbol === 'MATIC') {
+			setBalance('1.22');
+		}
+		setBalance('0.00');
+		setIsOpen(true);
+	}
+
+	const handleSubmit = async () => {
+		let toContract = '';
+		if (tokenSymbol === 'USDC') {
+			toContract = USDCAddress;
+		} else if (tokenSymbol === 'WETH') {
+			toContract = WETHAddress;
+		} else if (tokenSymbol === 'DAI') {
+			toContract = DAIAddress;
+		}
+		setIsOpen(false);
+		await sendTransaction(receiverAddress, Number(amount), toContract);
+	};
+
 	return (
 		<>
 			<div className='col-span-6 bg-[#F7F7F7] h-full'>
-				{/* Header tab goes here */}
-				<div className='flex flex-col items-center justify-center h-screen px-2'>
-					<button
+				<div className='flex items-center text-[20px] ml-2 mb-[20px]'>
+					Assets
+				</div>
+				<div className='flex flex-wrap py-2'>
+					<div className='w-full px-4'>
+						<Token
+							handleClicked={clickedP}
+							name={'MATIC'}
+							logo={'/logos/matic-token-icon.webp'}
+							setTokenSymbol={setTokenSymbol}
+							setLogoURI={setLogoURI}
+						/>
+						<Token
+							handleClicked={clickedP}
+							name={'USDC'}
+							logo={'/logos/USD_Coin_icon.webp'}
+							setTokenSymbol={setTokenSymbol}
+							setLogoURI={setLogoURI}
+						/>
+						<Token
+							handleClicked={clickedP}
+							name={'WETH'}
+							logo={'/logos/ethereum.webp'}
+							setTokenSymbol={setTokenSymbol}
+							setLogoURI={setLogoURI}
+						/>
+						<Token
+							handleClicked={clickedP}
+							name={'DAI'}
+							logo={'/logos/dai.png'}
+							setTokenSymbol={setTokenSymbol}
+							setLogoURI={setLogoURI}
+						/>
+					</div>
+				</div>
+				{/* <button
 						className='flex items-center justify-center'
 						onClick={() => {
 							setIsOpen(true);
 						}}
 					>
 						Transfer
-					</button>
-				</div>
+					</button> */}
+				{/* </div> */}
 			</div>
 			<ModalV3
 				title={'Transfer'}
@@ -185,7 +227,10 @@ function Assets() {
 					<div className='p-[30px] pb-[14px]'>
 						<Transfer
 							label={'Amount'}
-							input={tokenInputField}
+							amount={amount}
+							balance={balance}
+							tokenSymbol={tokenSymbol}
+							logoURI={logoURI}
 							errorMsg={inputErrorMsg}
 							handleChange={handleAmountChange}
 							disableSelection
@@ -207,10 +252,7 @@ function Assets() {
 							</div>
 						</div>
 						<Button
-							onClick={async () => {
-								await sendTransaction(receiverAddress, Number(amount), '0x');
-								setIsOpen(false);
-							}}
+							onClick={handleSubmit}
 							// disabled={!amount || +amount === 0}
 							size={ButtonSize.Full}
 							className='mt-[30px] mb-[14px] cursor-pointer'

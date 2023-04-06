@@ -29,6 +29,10 @@ function CreateAccount() {
 	//});
 	const [showModal, setShowModal] = useState(false);
 	const [accountsList, setAccountsList] = useState([] as Array<string>);
+	const [checked, setChecked] = useState(false);
+	const handleChecked = () => {
+		setChecked(!checked);
+	};
 
 	const router = useRouter();
 	const accountNameChange = (event: { target: { value: string } }) => {
@@ -36,8 +40,14 @@ function CreateAccount() {
 		console.log(newAccount);
 	};
 	const addressChange = (event: { target: { value: string } }) => {
-		if (changeAddress) changeAddress(event.target.value);
-		console.log(newAddress);
+		if (changeAddress) {
+			changeAddress(event.target.value);
+			console.log(newAddress);
+			setAccountsList((prevState) => [
+				...prevState,
+				event.target.value as string,
+			]);
+		}
 	};
 	const handleCreateAccount = async () => {
 		const notification = toast.loading(`SigningIn...`, { duration: 2000 });
@@ -126,18 +136,24 @@ function CreateAccount() {
 	return (
 		<>
 			<div className='min-h-full flex space-x-4 items-center justify-center mt-4'>
-				<div
-					onClick={handleCreateAccount}
-					className='cursor-pointer hover:shadow ml-2 w-96 p-4 rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5'
-				>
-					<div className='flex justify-between'>
+				<div className='cursor-pointer hover:shadow ml-2 w-96 p-4 rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5'>
+					<div onClick={handleCreateAccount} className='flex justify-between'>
 						<BiAddToQueue size={50} className='text-green-400' />
 					</div>
 					<div>
-						<h2 className='font-bold'>Create an account</h2>
+						<h2
+							onClick={handleCreateAccount}
+							className='font-bold hover:text-blue-600'
+						>
+							Create an account
+						</h2>
 						<p className='truncate break-normal'>
 							Two clicks away from having your web3 Smart wallet
 						</p>
+						<div className='flex'>
+							<input type='checkbox' onChange={handleChecked} disabled />
+							<p className='text-sm text-gray-400'>Paymaster</p>
+						</div>
 					</div>
 				</div>
 				<div

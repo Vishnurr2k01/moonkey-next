@@ -5,8 +5,8 @@ import { _abi } from '../typechains/VerifyingPaymaster__factory';
 import { UserOperation } from './UserOperation';
 
 const entrypointAddress = '0x0576a174D229E3cFA37253523E645A78A0C91B57'; //EntryPoint
-const accountAddress = '0x92B0C7DA4719E9f784a663dC0DB1931221143739'; //MoonKeyGonosisAccountFactory
-const paymasterAddress = '0xd3Dc15e08e735186371226746e8f4585dDa135Ba'; //VerifyingPaymaster
+const paymasterAddress = '0x6D0Bc38A66DCe1Eb51D0fb087abAD151Ac49cD2F'; //VerifyingPaymaster
+const accountAddress = '0x54034b9063Cb8AB49B0Cd5500Ba44cbb1405984D'; //MoonKeyGonosisAccountFactory
 const VALID_UNTIL = 1777068462;
 const VALID_AFTER = 0;
 
@@ -21,7 +21,7 @@ export async function paymaster(
 		'function transfer(address to, uint amount) returns (bool)',
 	];
 	let callData = '0x';
-	if (toContract) {
+	if (toContract && toContract !== '') {
 		const erc20 = new ethers.utils.Interface(erc20ABI);
 		callData = erc20.encodeFunctionData('transfer', [to, amount]);
 		to = toContract;
@@ -85,15 +85,22 @@ export async function paymasterSigned(
 	op: UserOperation,
 	provider: ethers.providers.JsonRpcProvider
 ) {
-	const offchainSigner = new ethers.Wallet(
-		process.env.NEXT_PUBLIC_PAYMASTER_OWNER_PRIVATE_KEY!,
-		provider
-	);
-
 	const paymaster = new ethers.Contract(paymasterAddress, _abi, provider);
 	// Sign OffChain to verify as paymaster
 	const hash = await paymaster.callStatic.getHash(op, VALID_UNTIL, VALID_AFTER);
-	const sig = await offchainSigner.signMessage(arrayify(hash));
+
+	//const offchainSigner = new ethers.Wallet(
+	//	process.env.NEXT_PUBLIC_PAYMASTER_OWNER_PRIVATE_KEY!,
+	//	provider
+	//);
+	//const sig = await offchainSigner.signMessage(arrayify(hash));
+	const sig = await fetch('/api/paymaster', {
+		method: 'POST',
+		body: JSON.stringify({ provider: provider, hash: hash }),
+		cache: 'no-store',
+	}).then((res) => res.json());
+	console.log('Paymaster Sig: ', sig);
+
 	// Build userOperation
 	const userOp = await fillUserOp(
 		{

@@ -1,21 +1,29 @@
 'use client';
 
 import { ClientContext } from '@/components/ClientProvider';
-import { SetStateAction, useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { fillOp, sendToBundler } from '@/lib/scripts/deploy';
 import { executeTx } from '@/lib/scripts/execute';
 import toast from 'react-hot-toast';
 import { ethers } from 'ethers';
 import { UserOperation } from '@/lib/scripts/UserOperation';
 import { parseEther } from 'ethers/lib/utils';
-import { BsSendFill } from 'react-icons/bs';
-import { GrSend } from 'react-icons/gr';
 
 function Transaction() {
 	const [sendAmount, setSendAmount] = useState(0);
 	const [receiverAddress, setReceiverAddress] = useState('');
 	const { newAccount, newAddress, safeAuthSignInResponse, safeAuth, provider } =
 		useContext(ClientContext);
+	const [txData, setTxData] = useState<ethers.providers.TransactionResponse[]>(
+		[]
+	);
+
+	const history = async () => {
+		let prov = new ethers.providers.EtherscanProvider('maticmum');
+		let history = await prov.getHistory(newAddress!);
+
+		setTxData(history);
+	};
 
 	const sendTransaction = async (
 		to: string,
@@ -113,40 +121,45 @@ function Transaction() {
 	return (
 		<div className='col-span-6 bg-[#F7F7F7] h-full'>
 			{/* Header tab goes here */}
-			<div className='flex flex-col items-center justify-center h-screen px-2'>
-				<h1 className='text-2xl font-bold mb-10'>Transfer</h1>
-				<div className='flex space-x-2'>
-					<div className='space-x-2 justify-between'>
-						{/* <div className='flex items-center justify-center mb-2'>
+			{/* <div className='flex flex-col items-center justify-center h-screen px-2'> */}
+			<div className='flex flex-wrap py-2'>
+				<div className='w-full px-4'>
+					<h1 className='text-2xl font-bold mb-10'>Transactions</h1>
+					<div className='flex space-x-2'>
+						<div className='space-x-2 justify-between'>
+							{/* <div className='flex items-center justify-center mb-2'>
 							<BsSendFill size={15} />
 							<h2 className='m-1'>Send</h2>
 						</div> */}
-						<div className='space-y-2 flex-col text-white'>
-							<div className='flex flex-col space-y-2 justify-between'>
-								<input
-									className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full mt-3 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-									type='number'
-									placeholder='Enter amount to transfer'
-									onChange={handleChange.amount}
-								/>
-								<input
-									className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full mt-3 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-									type='number'
-									placeholder='Enter receiver address'
-									onChange={handleChange.address}
-								/>
+							<div className='space-y-2 flex-col text-white'>
+								{/* <div className='flex flex-col space-y-2 justify-between'>
+									<input
+										className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full mt-3 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+										type='number'
+										placeholder='Enter amount to transfer'
+										onChange={handleChange.amount}
+									/>
+									<input
+										className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full mt-3 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+										type='number'
+										placeholder='Enter receiver address'
+										onChange={handleChange.address}
+									/>
+								</div> */}
+								<button
+									className='flex items-center justify-center cursor-pointer p-4 bg-blue-700/50 rounded-lg max-w-[300px] text-white hover:bg-blue-700/90'
+									onClick={async () => await history()}
+								>
+									<span className='m-1'>Load Data</span>
+								</button>
 							</div>
-							<button
-								className='flex items-center justify-center cursor-pointer p-4 bg-blue-700/50 rounded-lg max-w-[300px] text-white hover:bg-blue-700/90'
-								onClick={async () =>
-									await sendTransaction(receiverAddress, sendAmount, '0x')
-								}
-							>
-								<BsSendFill size={15} />
-								<span className='m-1'>Send</span>
-							</button>
 						</div>
 					</div>
+					{txData.map((tx, index) => (
+						<p key={index} className='mt-1 text-sm'>
+							{tx.hash}
+						</p>
+					))}
 				</div>
 			</div>
 		</div>

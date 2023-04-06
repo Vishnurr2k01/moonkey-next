@@ -23,7 +23,7 @@ function Sidebar() {
 	return (
 		<div className='flex flex-col col-span-2 items-center px-4 md:items-start text-gray-300 bg-gray-800 border-gray-800'>
 			<div
-				className='flex items-center bg-none'
+				className='flex items-center bg-none cursor-pointer'
 				onClick={() => router.push('/')}
 			>
 				<img src='/moon.svg' className='m-3 h-10 w-10' />
