@@ -15,7 +15,7 @@ export async function transfer(
 		'function transfer(address to, uint amount) returns (bool)',
 	];
 	let callData = '0x';
-	if (toContract) {
+	if (toContract && toContract !== '') {
 		const erc20 = new ethers.utils.Interface(erc20ABI);
 		callData = erc20.encodeFunctionData('transfer', [to, amount]);
 		to = toContract;

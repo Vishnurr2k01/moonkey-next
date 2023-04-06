@@ -14,6 +14,7 @@ import { ClientContext } from '@/components/ClientProvider';
 import { paymaster, paymasterSigned } from '@/lib/scripts/paymaster';
 import Token from './Token';
 import { DAIAddress, USDCAddress, WETHAddress } from '@/lib/constants';
+import { transfer } from '@/lib/scripts/transfer';
 
 const toBigNumber = (
 	num: BigNumberEther | string | number | BigNumber
@@ -73,13 +74,14 @@ function Assets() {
 				provider as ethers.providers.ExternalProvider
 			);
 			const signer: ethers.providers.JsonRpcSigner = prov.getSigner();
-			const res = await paymaster(
+			const res = await transfer(
 				await signer.getAddress(),
 				prov,
 				amount,
 				to,
 				toContract
 			);
+			//console.log('Address: ', res.counterfactualAddress);
 
 			const smartAccountAddress = res.counterfactualAddress;
 			if (
@@ -90,21 +92,18 @@ function Assets() {
 					`Deploying a Smart Account ${smartAccountAddress.substring(0, 6)}`,
 					{ id: notification, duration: 5000 }
 				);
-				//const balance = await prov.getBalance(smartAccountAddress);
-				//if (balance.lte(parseEther('0.001'))) {
-				//	toast.error(
-				//		`No paymaster found! And not enough balance to deploy ${smartAccountAddress.substring(
-				//			0,
-				//			6
-				//		)}`,
-				//		{ id: notification, duration: 5000 }
-				//	);
-				//	return;
-				//}
-				const resDeploy = await fillOpPaymaster(
-					await signer.getAddress(),
-					prov
-				);
+				const balance = await prov.getBalance(smartAccountAddress);
+				if (balance.lte(parseEther('0.001'))) {
+					toast.error(
+						`No paymaster found! And not enough balance to deploy ${smartAccountAddress.substring(
+							0,
+							6
+						)}`,
+						{ id: notification, duration: 5000 }
+					);
+					return;
+				}
+				const resDeploy = await fillOp(await signer.getAddress(), prov);
 				if (resDeploy.counterfactualAddress !== smartAccountAddress) {
 					toast.error(
 						`Found conflicting address, confirm that the signer is connected to the address ${smartAccountAddress.substring(
@@ -116,22 +115,22 @@ function Assets() {
 					return;
 				}
 				const signature = await signer.signMessage(resDeploy.message);
-				const op: UserOperation = { ...resDeploy.userOp, signature: signature };
-				const res2 = await paymasterSigned(op, prov);
-				const sig2 = await signer.signMessage(res2.message);
-				const op2: UserOperation = { ...res2.userOp, signature: sig2 };
-				await sendToBundler(op2, prov);
+				const op: UserOperation = { ...resDeploy.op2, signature: signature };
+				// const res2 = await paymasterSigned(op, prov);
+				// const sig2 = await signer.signMessage(res2.message);
+				// const op2: UserOperation = { ...res2.userOp, signature: sig2 };
+				await sendToBundler(op, prov);
 				toast.success(
 					`Deployed smart account at ${smartAccountAddress.substring(0, 6)}`,
 					{ id: notification, duration: 5000 }
 				);
 			}
 			const signature = await signer.signMessage(res.message);
-			const op: UserOperation = { ...res.userOp, signature: signature };
-			const res2 = await paymasterSigned(op, prov);
-			const sig2 = await signer.signMessage(res2.message);
-			const op2: UserOperation = { ...res2.userOp, signature: sig2 };
-			await sendToBundler(op2, prov);
+			const op: UserOperation = { ...res.op2, signature: signature };
+			// const res2 = await paymasterSigned(op, prov);
+			// const sig2 = await signer.signMessage(res2.message);
+			// const op2: UserOperation = { ...res2.userOp, signature: sig2 };
+			await sendToBundler(op, prov);
 			toast.success(`Sent ${amount} to ${to.substring(0, 6)}`, {
 				id: notification,
 				duration: 5000,
@@ -164,6 +163,7 @@ function Assets() {
 			toContract = DAIAddress;
 		}
 		setIsOpen(false);
+		console.log('To Contract: ', toContract);
 		await sendTransaction(receiverAddress, Number(amount), toContract);
 	};
 
