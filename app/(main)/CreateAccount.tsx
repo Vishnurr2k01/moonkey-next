@@ -6,7 +6,7 @@ import { fillOp, sendToBundler } from '@/lib/scripts/deploy';
 import { ethers } from 'ethers';
 import { parseEther } from 'ethers/lib/utils';
 import { useRouter } from 'next/navigation';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { AiFillCloseSquare } from 'react-icons/ai';
 import { BiAddToQueue, BiImport } from 'react-icons/bi';
@@ -28,6 +28,11 @@ function CreateAccount() {
 	//	revalidateOnFocus: false,
 	//});
 	const [showModal, setShowModal] = useState(false);
+	const [accountsList, setAccountsList] = useState([] as Array<string>);
+	const [checked, setChecked] = useState(false);
+	const handleChecked = () => {
+		setChecked(!checked);
+	};
 
 	const router = useRouter();
 	const accountNameChange = (event: { target: { value: string } }) => {
@@ -35,8 +40,14 @@ function CreateAccount() {
 		console.log(newAccount);
 	};
 	const addressChange = (event: { target: { value: string } }) => {
-		if (changeAddress) changeAddress(event.target.value);
-		console.log(newAddress);
+		if (changeAddress) {
+			changeAddress(event.target.value);
+			console.log(newAddress);
+			setAccountsList((prevState) => [
+				...prevState,
+				event.target.value as string,
+			]);
+		}
 	};
 	const handleCreateAccount = async () => {
 		const notification = toast.loading(`SigningIn...`, { duration: 2000 });
@@ -52,8 +63,12 @@ function CreateAccount() {
 				const res = await fillOp(await signer.getAddress(), prov);
 				const smartAccountAddress = res.counterfactualAddress;
 				changeAddress(smartAccountAddress);
+				setAccountsList((prevState) => [
+					...prevState,
+					smartAccountAddress as string,
+				]);
 
-				if ((await prov.getCode(smartAccountAddress)) !== '0x') {
+				if ((await prov.getCode(smartAccountAddress)).length > 2) {
 					toast.success(
 						`SmartAccount already exist at ${smartAccountAddress.substring(
 							0,
@@ -103,21 +118,42 @@ function CreateAccount() {
 		setShowModal(true);
 	};
 
+	useEffect(() => {
+		const list = window.localStorage.getItem('userAccountList');
+		if (list) setAccountsList(JSON.parse(list));
+	}, []);
+	useEffect(() => {
+		window.localStorage.setItem(
+			'userAccountList',
+			JSON.stringify(
+				accountsList.filter(
+					(item, index) => accountsList.indexOf(item) === index
+				)
+			)
+		);
+	}, [accountsList]);
+
 	return (
 		<>
 			<div className='min-h-full flex space-x-4 items-center justify-center mt-4'>
-				<div
-					onClick={handleCreateAccount}
-					className='cursor-pointer hover:shadow ml-2 w-96 p-4 rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5'
-				>
-					<div className='flex justify-between'>
+				<div className='cursor-pointer hover:shadow ml-2 w-96 p-4 rounded-lg bg-white shadow ring-1 ring-black ring-opacity-5'>
+					<div onClick={handleCreateAccount} className='flex justify-between'>
 						<BiAddToQueue size={50} className='text-green-400' />
 					</div>
 					<div>
-						<h2 className='font-bold'>Create an account</h2>
+						<h2
+							onClick={handleCreateAccount}
+							className='font-bold hover:text-blue-600'
+						>
+							Create an account
+						</h2>
 						<p className='truncate break-normal'>
 							Two clicks away from having your web3 Smart wallet
 						</p>
+						{/* <div className='flex'>
+							<input type='checkbox' onChange={handleChecked} disabled />
+							<p className='text-sm text-gray-400'>Paymaster</p>
+						</div> */}
 					</div>
 				</div>
 				<div
@@ -132,6 +168,23 @@ function CreateAccount() {
 						<p className='truncate break-normal'>Migrate your smart wallet.</p>
 					</div>
 				</div>
+			</div>
+			<div className='flex flex-col items-center justify-center mt-5 px-2'>
+				{accountsList.length > 0 &&
+					accountsList.map((account, index) => (
+						<div key={index} className='flex items-center justify-center'>
+							<button
+								onClick={() => {
+									changeAddress!(account);
+									router.push('/moons');
+								}}
+								className='cursor-pointer bg-transparent border-none p-2 mb-2'
+							>
+								<span className=' text-[20px]'>Account-{index + 1}: </span>
+								<span className='font-bold hover:text-blue-700'>{account}</span>
+							</button>
+						</div>
+					))}
 			</div>
 			{showModal ? (
 				<>

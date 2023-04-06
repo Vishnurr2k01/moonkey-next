@@ -7,7 +7,7 @@ import { AiFillTool } from 'react-icons/ai';
 import { MdVpnKey } from 'react-icons/md';
 import SidebarRow from './SidebarRow';
 import { ClientContext } from './ClientProvider';
-import Divider from './Divider';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 function Sidebar() {
@@ -19,10 +19,13 @@ function Sidebar() {
 		newAccount,
 		newAddress,
 	} = useContext(ClientContext);
-
+	const router = useRouter();
 	return (
 		<div className='flex flex-col col-span-2 items-center px-4 md:items-start text-gray-300 bg-gray-800 border-gray-800'>
-			<div className='flex items-center bg-none'>
+			<div
+				className='flex items-center bg-none cursor-pointer'
+				onClick={() => router.push('/')}
+			>
 				<img src='/moon.svg' className='m-3 h-10 w-10' />
 				<p className='font-Kelly text-2xl'>MoonKey</p>
 			</div>
