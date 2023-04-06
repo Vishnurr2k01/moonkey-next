@@ -150,10 +150,10 @@ function CreateAccount() {
 						<p className='truncate break-normal'>
 							Two clicks away from having your web3 Smart wallet
 						</p>
-						<div className='flex'>
+						{/* <div className='flex'>
 							<input type='checkbox' onChange={handleChecked} disabled />
 							<p className='text-sm text-gray-400'>Paymaster</p>
-						</div>
+						</div> */}
 					</div>
 				</div>
 				<div
