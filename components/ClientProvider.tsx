@@ -9,19 +9,35 @@ import {
 	Web3AuthProviderConfig,
 } from '@safe-global/auth-kit';
 import { SafeEventEmitterProvider } from '@web3auth/base';
+import SafeProvider from '@safe-global/safe-apps-react-sdk';
 
-export const ClientContext = React.createContext<ClientProps>({});
+export const ClientContext = React.createContext<ClientProps>({
+	logIn: function (): {} {
+		throw new Error('Function not implemented.');
+	},
+	logOut: function (): {} {
+		throw new Error('Function not implemented.');
+	},
+	newAccount: '',
+	newAddress: '',
+	changeAccount: function (newAccount: string): void {
+		throw new Error('Function not implemented.');
+	},
+	changeAddress: function (newAddress: string): void {
+		throw new Error('Function not implemented.');
+	}
+});
 
-interface ClientProps {
+export interface ClientProps {
 	safeAuth?: SafeAuthKit;
 	safeAuthSignInResponse?: any;
 	provider?: any;
-	logIn?: () => {};
-	logOut?: () => {};
-	newAccount?: string;
-	newAddress?: string;
-	changeAccount?: (newAccount: string) => void;
-	changeAddress?: (newAddress: string) => void;
+	logIn: () => {};
+	logOut: () => {};
+	newAccount: string;
+	newAddress: string;
+	changeAccount: (newAccount: string) => void;
+	changeAddress: (newAddress: string) => void;
 }
 
 export default function RootLayout({
@@ -35,7 +51,7 @@ export default function RootLayout({
 		null
 	);
 	const [safeAuth, setSafeAuth] = useState<SafeAuthKit>();
-	const [clientProps, setClientProps] = useState<ClientProps>({});
+	const [clientProps, setClientProps] = useState<ClientProps>();
 	const [newAccount, setNewAccount] = useState('Account-1');
 	const [newAddress, setNewAddress] = useState(
 		'0x996f40e8FB99Bb0Cba3231C88186d74C27B232D2'
@@ -60,6 +76,8 @@ export default function RootLayout({
 			);
 		})();
 	}, []);
+
+
 
 	useEffect(() => {
 		if (!safeAuth) return;
@@ -91,10 +109,13 @@ export default function RootLayout({
 		setProvider(null);
 		setSafeAuthSignInResponse(null);
 	};
-	return (
+	return (<>{clientProps && (
 		<ClientContext.Provider value={clientProps}>
-			<Toaster position='bottom-center' />
-			{children}
-		</ClientContext.Provider>
+			<SafeProvider>
+				<Toaster position='bottom-center' />
+				{children}
+			</SafeProvider>
+		</ClientContext.Provider>)}
+	</>
 	);
 }
