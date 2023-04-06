@@ -7,7 +7,7 @@ import { ethers } from "ethers"
 import { useSafeAppsSDK } from "@safe-global/safe-apps-react-sdk"
 import { SafeAppProvider } from "@safe-global/safe-apps-provider"
 
-export default () => {
+function UniSwap()  {
     const { provider } = useContext(ClientContext)
     const [prov, setProv] = useState<ethers.providers.Web3Provider>();
     const { sdk, safe } = useSafeAppsSDK();
@@ -22,3 +22,5 @@ export default () => {
         <SwapWidget provider={prov} width={500}/>
     </ div>)
 }
+
+export default UniSwap;

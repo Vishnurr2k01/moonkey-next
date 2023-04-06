@@ -9,8 +9,7 @@ import {
 	Web3AuthProviderConfig,
 } from '@safe-global/auth-kit';
 import { SafeEventEmitterProvider } from '@web3auth/base';
-import SafeProvider, { useSafeAppsSDK } from '@safe-global/safe-apps-react-sdk';
-import { SafeAppProvider } from '@safe-global/safe-apps-provider'
+import SafeProvider from '@safe-global/safe-apps-react-sdk';
 
 export const ClientContext = React.createContext<ClientProps>({
 	logIn: function (): {} {
