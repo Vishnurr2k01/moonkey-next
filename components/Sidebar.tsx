@@ -4,7 +4,7 @@ import { GiTwoCoins } from 'react-icons/gi';
 import { BiTransferAlt, BiDollarCircle, BiCopy } from 'react-icons/bi';
 import { TbPlanet } from 'react-icons/tb';
 import { AiFillTool } from 'react-icons/ai';
-import { MdVpnKey } from 'react-icons/md';
+import { MdCurrencyExchange, MdVpnKey } from 'react-icons/md';
 import SidebarRow from './SidebarRow';
 import { ClientContext } from './ClientProvider';
 import { useRouter } from 'next/navigation';
@@ -81,6 +81,9 @@ function Sidebar() {
 			</div>
 			<Link href={'/moons/onramp'} className='no-underline text-gray-300'>
 				<SidebarRow Icon={BiDollarCircle} title='Onramp' />
+			</Link>
+			<Link href={'/moons/exchange'} className='no-underline text-gray-300'>
+				<SidebarRow Icon={MdCurrencyExchange} title='Exchange' />
 			</Link>
 			{!safeAuthSignInResponse ? (
 				<button
